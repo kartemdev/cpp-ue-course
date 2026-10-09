@@ -4,7 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/StaticMeshComponent.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Components/SphereComponent.h"
+#include "CppCourseCharacter.h"
+#include "Kismet/GameplayStatics.h"
 #include "TestActor.generated.h"
+
+
+USTRUCT(BlueprintType)
+struct FMyStructure
+{
+	GENERATED_BODY()
+};
 
 UCLASS()
 class CPPCOURSE_API ATestActor : public AActor
@@ -28,10 +41,27 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void printSomething();
-};
 
-USTRUCT(BlueprintType)
-struct FMyStructure
-{
-	GENERATED_BODY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UStaticMeshComponent* MyMeshComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	USpringArmComponent* MySpringArm;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UCameraComponent* MyCamera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	USphereComponent* MyCollision;
+
+	FTimerHandle MyRotationTimer;
+
+	UPROPERTY(EditAnywhere, Category="Rotation")
+	float RotationSpeed = 90.f;
+
+	UFUNCTION()
+	void Func_Rotation();
+
+	UFUNCTION()
+	void CheckDistance();
 };
