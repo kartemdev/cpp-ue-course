@@ -63,6 +63,9 @@ void ACppCourseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACppCourseCharacter::Move);
 		EnhancedInputComponent->BindAction(MouseLookAction, ETriggerEvent::Triggered, this, &ACppCourseCharacter::Look);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ACppCourseCharacter::StartSprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ACppCourseCharacter::StopSprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Canceled, this, &ACppCourseCharacter::StopSprint);
+		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Started, this, &ACppCourseCharacter::Dash);
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACppCourseCharacter::Look);
@@ -70,6 +73,25 @@ void ACppCourseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	else
 	{
 		UE_LOG(LogCppCourse, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+	}
+}
+
+void ACppCourseCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (bIsSprinting)
+	{
+		CurrentStamina = FMath::Clamp(CurrentStamina - (StaminaDrainRate * DeltaTime), 0.f, MaxStamina);
+
+		if (CurrentStamina <= 0.f)
+		{
+			StopSprint();
+		}
+	}
+	else
+	{
+		CurrentStamina = FMath::Clamp(CurrentStamina + (StaminaRegenRate * DeltaTime), 0.f, MaxStamina);
 	}
 }
 
@@ -133,63 +155,35 @@ void ACppCourseCharacter::DoJumpEnd()
 	StopJumping();
 }
 
-void ACppCourseCharacter::StopSprint()
+float ACppCourseCharacter::GetStaminaPercentage() const
 {
-	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
-
-	if (GetWorld())
-	{
-		GetWorld()->GetTimerManager().ClearTimer(SprintTimerHandle);
-
-		GetWorld()->GetTimerManager().SetTimer(
-			CooldownSprintTimerHandle,
-			this,
-			&ACppCourseCharacter::ResetSprintCooldown,
-			CooldownSprintDuration,
-			false
-		);
-	}
+	return CurrentStamina / MaxStamina;
 }
 
 void ACppCourseCharacter::StartSprint()
 {
-	if (bCanSprint && GetWorld() && !GetWorld()->GetTimerManager().IsTimerActive(SprintTimerHandle))
+	if (CurrentStamina > 5.f)
 	{
-		bCanSprint = false;
+		bIsSprinting = true;
 
 		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
-
-		GetWorld()->GetTimerManager().SetTimer(
-			SprintTimerHandle,
-			this,
-			&ACppCourseCharacter::StopSprint,
-			SprintDuration,
-			false
-		);
 	}
 }
 
-void ACppCourseCharacter::ResetSprintCooldown()
+void ACppCourseCharacter::StopSprint()
 {
-	bCanSprint = true;
+	bIsSprinting = false;
+	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 }
 
-float ACppCourseCharacter::GetSprintCooldownSprintPercentage() const
+void ACppCourseCharacter::Dash()
 {
-	if (bCanSprint)
+	if (CurrentStamina >= DashStaminaCost)
 	{
-		return 1.0f;
+		CurrentStamina = FMath::Clamp(CurrentStamina - DashStaminaCost, 0.f, MaxStamina);
+
+		FVector DashDirection = GetActorForwardVector();
+
+		LaunchCharacter(DashDirection * DashForce, true, true);
 	}
-
-	if (GetWorld())
-	{
-		float RemainingTime = GetWorld()->GetTimerManager().GetTimerRemaining(CooldownSprintTimerHandle);
-
-
-		return 1.0f - (RemainingTime / CooldownSprintDuration);
-	}
-
-	return 0.0f;
 }
-
-

@@ -54,20 +54,35 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* SprintAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* DashAction;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Movement")
 	float NormalSpeed = 500.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
-	float SprintSpeed = 25000.f;
+	float SprintSpeed = 1200.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
-	float SprintDuration = .6f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
-	float CooldownSprintDuration = 2.0f;
+	float DashForce = 3600.f;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	bool bCanSprint = true;
+	bool bIsSprinting = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stamina")
+	float MaxStamina = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stamina")
+	float StaminaDrainRate = 20.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stamina")
+	float StaminaRegenRate = 15.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stamina")
+	float DashStaminaCost = 30.f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Stamina")
+	float CurrentStamina = 100.f;
 
 public:
 
@@ -79,12 +94,14 @@ protected:
 	/** Initialize input action bindings */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void Tick(float DeltaTime) override;
+
 protected:
 	void StartSprint();
 
 	void StopSprint();
 
-	void ResetSprintCooldown();
+	void Dash();
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -111,7 +128,7 @@ public:
 	virtual void DoJumpEnd();
 
 	UFUNCTION(BlueprintPure, Category="Movement")
-	float GetSprintCooldownSprintPercentage() const;
+	float GetStaminaPercentage() const;
 
 public:
 
