@@ -12,6 +12,8 @@
 #include "InputActionValue.h"
 #include "CppCourse.h"
 
+DEFINE_LOG_CATEGORY(SprintCharacter);
+
 ACppCourseCharacter::ACppCourseCharacter()
 {
 	// Set size for collision capsule
@@ -167,6 +169,8 @@ void ACppCourseCharacter::StartSprint()
 		bIsSprinting = true;
 
 		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+
+		UE_LOG(SprintCharacter, Display, TEXT("Начало спринта"))
 	}
 }
 
@@ -174,6 +178,8 @@ void ACppCourseCharacter::StopSprint()
 {
 	bIsSprinting = false;
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
+
+	UE_LOG(SprintCharacter, Display, TEXT("Конец спринта"))
 }
 
 void ACppCourseCharacter::Dash()
@@ -185,5 +191,7 @@ void ACppCourseCharacter::Dash()
 		FVector DashDirection = GetActorForwardVector();
 
 		LaunchCharacter(DashDirection * DashForce, true, true);
+
+		UE_LOG(SprintCharacter, Display, TEXT("Рывок"))
 	}
 }

@@ -42,10 +42,12 @@ void ATestActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	CheckDistance();
+	printSomething();
 }
 
 void ATestActor::printSomething()
 {
+	GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Blue, FString::Printf(TEXT("Actor Position: %s"), *GetActorLocation().ToString()));
 }
 
 void ATestActor::Func_Rotation()
