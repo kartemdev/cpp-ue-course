@@ -7,11 +7,13 @@
 #include "Logging/LogMacros.h"
 #include "CppCourseCharacter.generated.h"
 
+
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
 
+DECLARE_LOG_CATEGORY_EXTERN(SprintCharacter, Log, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 /**
@@ -57,7 +59,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* DashAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Movement")
+ 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Movement")
 	float NormalSpeed = 500.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
